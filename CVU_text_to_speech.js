@@ -1,8 +1,14 @@
-	
-	if( getCookie('text_to_speech') == 'true' || getCookie('text_to_speech') ){
-		var Disable = true;
-	}else{
+/* 
+This plugin made by suhail al-eryani to help read pages for blind people , anyone can use it , big thanks to http://creative-solutions.net/ for making there services available for free .
+
+ */
+
+
+
+	if( getCookie('text_to_speech') == 1 ){
 		var Disable = false;
+	}else{
+		var Disable = true;
 	}
 	var stopVar = false;
 	var isStarted = false;
@@ -140,11 +146,11 @@
       }
       function disable(){
         Disable = false;
-		setCookie('text_to_speech', false, 336);
+		setCookie('text_to_speech', 1, 336);
       }
       function enable(){
 		Disable = true;
-		setCookie('text_to_speech', true, 336);
+		setCookie('text_to_speech', 0, 336);
       }
 
       function ToMultipleWords(content, nr){
