@@ -8,7 +8,7 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
 	if( getCookie('text_to_speech') == 1 ){
 		var Disable = false;
 	}else{
-		var Disable = true;
+		var Disable = true; // this should be true for normal user 
 	}
 	var stopVar = false;
 	var isStarted = false;
@@ -18,17 +18,11 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
 
 		$(document).ready(function () {
 			
-/* 		   $('select').on('mouseenter','option',function(e) {
-				console.log( $(this).text().trim() );
-				if( Disable  ){
-				  if( isStarted == false ){
-					  if( $(this).text().trim() != void 0 ) reader( $(this).text().trim() );
-				  }else{
-					stopVar = true;
-					if( $(this).text().trim() != void 0 ) reader( $(this).text().trim() );
-				  }
-				}
-			}); */
+			
+			$('option').each(function(){
+				$(this).addClass('hover-option');
+			});
+			
 			
 			$('li.stop').on('click',function(e){
 				e.preventDefault();
@@ -42,15 +36,13 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
 				e.preventDefault();
 				enable();
 			});
-			
-			
 
-			$(' button , p ,i , a, span,li a, input').on('mouseover', function(){
+			$(' button , p ,i , a, span,li a, input, strong, p a').hover(function(){
 				
 				if( $(this)[0].tagName == 'INPUT'){
-					var text = $(this).val().trim()
+					var text = $(this).val().trim();
 				}else{
-					var text = $(this).text().trim()
+					var text = $(this).text().trim();
 				}
 				if( text == '' ){
 					text = $(this).attr('title');
@@ -58,16 +50,23 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
 						text = $(this).attr('text');
 					}
 				}
+				//console.log( text );
 				
 				if( Disable  ){
 				  if( isStarted == false ){
 					  if( text != void 0 ) reader( text );
 				  }else{
-					stopVar = true;
-					if( text != void 0 ) reader( text );
+					//stopVar = true;
+					//if( text != void 0 ) reader( text );
 				  }
 				}
-			  });
+				
+				
+				}, function(){ // mouse out 
+				//stopVar = true;
+				
+			});
+			
 
 		});
 		
@@ -75,32 +74,21 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
 		
 	})(jQuery);
 
-		      //  document.addEventListener("mouseover", function(){
-      //     console.log(this);
-      //  });
 
-      
         function reader( content ){
-          // var content = document.getElementById('readthis').innerText;
           isStarted = true;
           content = content.split(' ');
           //content = ToMultipleWords(content, 0);
+		  //console.log(content);
           player(content,0,1)
         }
 
-        function player(content,i = 0,duration){
-          window.setTimeout(function(){p(content,i)} , duration*600 );
+        function player(content,i = 0,duration = 1){
+			console.log(content[i]);
+          window.setTimeout(function(){p(content,i)} , duration );
         }
 
         function p(content,i){
-          
-          // audio.src = 'https://ssl.gstatic.com/dictionary/static/sounds/de/0/'+content[i]+'.mp3';
-          // audio.src = 'https://translate.google.com/translate_tts?ie=UTF-8&q='+content[i]+'&tl=en&total=1&idx=0&textlen='+content[i].length+'&tk=689718.832913&client=f&ttsspeed=0.24';
-          // content[i] = content[i].replace('.','').replace('!','').replace('?','').replace(',','').replace(';','').toLowerCase();
-          // if(content[i].substr(content[i].length - 1) == 's'){
-          //   content[i] = content[i].substr( 0, content[i].length - 1);
-          // }
-          // audio.src = 'http://packs.shtooka.net/eng-wcp-us/ogg/En-us-'+content[i]+'.ogg';
 		  
 			if( content[i] != void 0 && content[i] != '' && content[i] != ' ' ){
 				var audio = new Audio();
@@ -108,8 +96,15 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
 			  var v = audio.addEventListener("loadeddata", function() {
 
 			   audio.play();
-			   if(i < content.length-1 && stopVar == false && isStarted == false )player(content,i+1,this.duration)
-			   else {audio.stop; stopVar = false; isStarted = false; }
+			   if(i < content.length-1 && stopVar == false ){
+				window.setTimeout(function(){player(content,i+1,this.duration)} , 250 ); 
+				//player(content,i+1,this.duration)
+			   }
+			   else {
+				   audio.stop;
+				   stopVar = false;
+				   isStarted = false; 
+				}
 			  });
 			  audio.addEventListener('error', function failed(e) {
 				 switch (e.target.error.code) {
@@ -133,12 +128,6 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
 			}
 
         }
-
-
-
-
-      
-
 
       function stopper(){
         stopVar = true;
@@ -175,7 +164,6 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
         return result;
       }
 
-
       function setCookie(cname, cvalue, exdays) {
           var d = new Date();
           d.setTime(d.getTime() + (exdays*24*60*60*1000));
@@ -197,11 +185,6 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
           }
           return "";
       }
-
-		
-		
-		
-		
 
 
 
