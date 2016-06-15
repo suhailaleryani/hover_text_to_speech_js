@@ -1,30 +1,84 @@
-    var Disable = checkCookie('text_to_speech',true);
-    var stopVar = false;
-    var isStarted = false;
+	
+	if( getCookie('text_to_speech') == 'true' || getCookie('text_to_speech') ){
+		var Disable = true;
+	}else{
+		var Disable = false;
+	}
+	var stopVar = false;
+	var isStarted = false;
 
-    $(function() {
+    (function($) {
+		
 
+		$(document).ready(function () {
+			
+/* 		   $('select').on('mouseenter','option',function(e) {
+				console.log( $(this).text().trim() );
+				if( Disable  ){
+				  if( isStarted == false ){
+					  if( $(this).text().trim() != void 0 ) reader( $(this).text().trim() );
+				  }else{
+					stopVar = true;
+					if( $(this).text().trim() != void 0 ) reader( $(this).text().trim() );
+				  }
+				}
+			}); */
+			
+			$('li.stop').on('click',function(e){
+				e.preventDefault();
+				stopper();
+			});
+			$('li.disable').on('click',function(e){
+				e.preventDefault();
+				disable();
+			});
+			$('li.enable').on('click',function(e){
+				e.preventDefault();
+				enable();
+			});
+			
+			
 
-      //  document.addEventListener("mouseover", function(){
+			$(' button , p ,i , a, span,li a, input').on('mouseover', function(){
+				
+				if( $(this)[0].tagName == 'INPUT'){
+					var text = $(this).val().trim()
+				}else{
+					var text = $(this).text().trim()
+				}
+				if( text == '' ){
+					text = $(this).attr('title');
+					if( text == '' ){
+						text = $(this).attr('text');
+					}
+				}
+				
+				if( Disable  ){
+				  if( isStarted == false ){
+					  if( text != void 0 ) reader( text );
+				  }else{
+					stopVar = true;
+					if( text != void 0 ) reader( text );
+				  }
+				}
+			  });
+
+		});
+		
+		
+		
+	})(jQuery);
+
+		      //  document.addEventListener("mouseover", function(){
       //     console.log(this);
       //  });
 
-      $('span , button , p ,i ').on('mouseover', function(){
-        // console.log(Disable);
-        if( Disable ){
-          if( isStarted == false ){
-            reader($(this).text());
-          }else{
-            stopVar = true;
-            reader($(this).text());
-          }
-        }
-      });
+      
         function reader( content ){
           // var content = document.getElementById('readthis').innerText;
           isStarted = true;
           content = content.split(' ');
-          content = ToMultipleWords(content, 1);
+          //content = ToMultipleWords(content, 0);
           player(content,0,1)
         }
 
@@ -33,7 +87,7 @@
         }
 
         function p(content,i){
-          var audio = new Audio();
+          
           // audio.src = 'https://ssl.gstatic.com/dictionary/static/sounds/de/0/'+content[i]+'.mp3';
           // audio.src = 'https://translate.google.com/translate_tts?ie=UTF-8&q='+content[i]+'&tl=en&total=1&idx=0&textlen='+content[i].length+'&tk=689718.832913&client=f&ttsspeed=0.24';
           // content[i] = content[i].replace('.','').replace('!','').replace('?','').replace(',','').replace(';','').toLowerCase();
@@ -41,39 +95,43 @@
           //   content[i] = content[i].substr( 0, content[i].length - 1);
           // }
           // audio.src = 'http://packs.shtooka.net/eng-wcp-us/ogg/En-us-'+content[i]+'.ogg';
+		  
+			if( content[i] != void 0 && content[i] != '' && content[i] != ' ' ){
+				var audio = new Audio();
+				audio.src = 'http://creative-solutions.net/plugins/system/gspeech/includes/streamer.php?q='+content[i].trim()+'&l=en&tr_tool=g&token=186228.319834';
+			  var v = audio.addEventListener("loadeddata", function() {
 
-          audio.src = 'http://creative-solutions.net/plugins/system/gspeech/includes/streamer.php?q='+content[i]+'&l=en&tr_tool=g&token=186228.319834';
-          var v = audio.addEventListener("loadeddata", function() {
+			   audio.play();
+			   if(i < content.length-1 && stopVar == false && isStarted == false )player(content,i+1,this.duration)
+			   else {audio.stop; stopVar = false; isStarted = false; }
+			  });
+			  audio.addEventListener('error', function failed(e) {
+				 switch (e.target.error.code) {
+				   case e.target.error.MEDIA_ERR_ABORTED:
+					  player(content,i+1,this.duration)
+					 break;
+				   case e.target.error.MEDIA_ERR_NETWORK:
+					  player(content,i+1,this.duration)
+					 break;
+				   case e.target.error.MEDIA_ERR_DECODE:
+					  player(content,i+1,this.duration)
+					 break;
+				   case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+					  player(content,i+1,this.duration)
+					 break;
+				   default:
+					  player(content,i+1,this.duration)
+					 break;
+				 }
+			   }, true);
+			}
 
-           audio.play();
-           if(i < content.length-1 && stopVar == false )player(content,i+1,this.duration)
-           else {audio.stop; stopVar = false; isStarted = false; }
-          });
-          audio.addEventListener('error', function failed(e) {
-             switch (e.target.error.code) {
-               case e.target.error.MEDIA_ERR_ABORTED:
-                  player(content,i+1,this.duration)
-                 break;
-               case e.target.error.MEDIA_ERR_NETWORK:
-                  player(content,i+1,this.duration)
-                 break;
-               case e.target.error.MEDIA_ERR_DECODE:
-                  player(content,i+1,this.duration)
-                 break;
-               case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-                  player(content,i+1,this.duration)
-                 break;
-               default:
-                  player(content,i+1,this.duration)
-                 break;
-             }
-           }, true);
         }
 
 
 
 
-      });
+      
 
 
       function stopper(){
@@ -81,10 +139,12 @@
         return 0
       }
       function disable(){
-        Disable = checkCookie('text_to_speech',false);;
+        Disable = false;
+		setCookie('text_to_speech', false, 336);
       }
       function enable(){
-        Disable = checkCookie('text_to_speech',true);
+		Disable = true;
+		setCookie('text_to_speech', true, 336);
       }
 
       function ToMultipleWords(content, nr){
@@ -132,13 +192,13 @@
           return "";
       }
 
-      function checkCookie(cname ,  value ) {
-          var cookie = getCookie(cname);
-          if (cookie != "" && cookie != void 0 ) {
-              return cookie;
-          } else {
-              setCookie(cname, value , 1 );
-              console.log(cname+' now is set to: '+ value);
-              return value;
-          }
-      }
+		
+		
+		
+		
+
+
+
+
+	  
+	
