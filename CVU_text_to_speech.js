@@ -12,6 +12,8 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
 	}
 	var stopVar = false;
 	var isStarted = false;
+	var timeOut ;
+	var audio = new Audio();
 
     (function($) {
 		
@@ -59,31 +61,18 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
 						  reader( text );
 					  } 
 				  }else{
-					//stopVar = true;
-					//if( text != void 0 ) reader( text );
+					stopVar = true;
+					if( text != void 0 ) reader( text );
 				  }
 				}
 				
 				
 				}, function(){ // mouse out 
-				
-				if( $(this)[0].tagName == 'INPUT'){
-					var text = $(this).val().trim();
-				}else{
-					var text = $(this).text().trim();
-				}
-				if( text == '' ){
-					text = $(this).attr('title');
-					if( text == '' ){
-						text = $(this).attr('text');
-					}
-				}
-				
-				if( text.length > 3 ){
-					//stopVar = true;
-				}
-				
-				
+					stopVar = true;
+					//audio.stop();
+					audio.pause();
+					audio.currentTime = 0;
+					
 			});
 			
 
@@ -102,15 +91,15 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
           player(content,0,1)
         }
 
-        function player(content,i = 0,duration = 1){
+        function player(content,i ,duration){
 			console.log(content[i]);
-          window.setTimeout(function(){p(content,i)} , duration*600 );
+          timeOut = window.setTimeout(function(){p(content,i)} , duration*600 );
         }
 
         function p(content,i){
 		  
 			if( content[i] != void 0 && content[i] != '' && content[i] != ' ' ){
-				var audio = new Audio();
+				
 				audio.src = 'http://creative-solutions.net/plugins/system/gspeech/includes/streamer.php?q='+content[i].trim()+'&l=en&tr_tool=g&token=186228.319834';
 			  var v = audio.addEventListener("loadeddata", function() {
 
