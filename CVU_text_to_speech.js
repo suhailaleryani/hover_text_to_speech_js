@@ -37,7 +37,7 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
 				enable();
 			});
 
-			$(' button , p ,i , a, span,li a, input, strong, p a').hover(function(){
+			$(' button , p ,i , a, span,li a, input, strong, p a, h1,h2,h3,h4,h5,h6').hover(function(){
 				
 				if( $(this)[0].tagName == 'INPUT'){
 					var text = $(this).val().trim();
@@ -54,7 +54,10 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
 				
 				if( Disable  ){
 				  if( isStarted == false ){
-					  if( text != void 0 ) reader( text );
+					  if( text != void 0 ){
+						  text = text.replace('&','and');
+						  reader( text );
+					  } 
 				  }else{
 					//stopVar = true;
 					//if( text != void 0 ) reader( text );
@@ -63,7 +66,23 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
 				
 				
 				}, function(){ // mouse out 
-				//stopVar = true;
+				
+				if( $(this)[0].tagName == 'INPUT'){
+					var text = $(this).val().trim();
+				}else{
+					var text = $(this).text().trim();
+				}
+				if( text == '' ){
+					text = $(this).attr('title');
+					if( text == '' ){
+						text = $(this).attr('text');
+					}
+				}
+				
+				if( text.length > 3 ){
+					//stopVar = true;
+				}
+				
 				
 			});
 			
@@ -78,14 +97,14 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
         function reader( content ){
           isStarted = true;
           content = content.split(' ');
-          //content = ToMultipleWords(content, 0);
-		  //console.log(content);
+          content = ToMultipleWords(content, 0);
+		  console.log(content);
           player(content,0,1)
         }
 
         function player(content,i = 0,duration = 1){
 			console.log(content[i]);
-          window.setTimeout(function(){p(content,i)} , duration );
+          window.setTimeout(function(){p(content,i)} , duration*600 );
         }
 
         function p(content,i){
@@ -97,7 +116,7 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
 
 			   audio.play();
 			   if(i < content.length-1 && stopVar == false ){
-				window.setTimeout(function(){player(content,i+1,this.duration)} , 250 ); 
+				window.setTimeout(function(){player(content,i+1,this.duration)} , this.duration*700 ); 
 				//player(content,i+1,this.duration)
 			   }
 			   else {
@@ -144,22 +163,27 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
 
       function ToMultipleWords(content, nr){
         var result = [];
-        var temp = '';
-        var counter = 0;
-        if( nr <= content.length ){
-          for(var i = 0 ; i < content.length ; i++){
-            // console.log( content[i] );
-            temp = temp+' '+content[i];
-            if( counter == nr ){
-              result.push( temp );
-              temp = '';
-              counter = 0;
-            }
-            counter++ ;
-          }
-        }else{
-          return content;
-        }
+		for(var i = 0 ; i < content.length ; i++ ){
+			if( content[i] != void 0 && content[i+1] != void 0 && content[i+2] != void 0 ){
+				result.push( content[i]+' '+content[i+1]+' '+content[i+2] );
+				i++;i++;
+				//console.log(i);
+			}else {
+				if( content[i] != void 0 && content[i+1] != void 0){
+					result.push( content[i]+' '+content[i+1] );
+					i++;
+					//console.log(i);
+				}else{
+					if( content[i] != void 0  ){
+						result.push( content[i] );
+						//console.log(i);
+					}else{
+						;
+					}
+				}
+			}
+		}
+
 
         return result;
       }
