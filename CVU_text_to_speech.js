@@ -1,6 +1,5 @@
 /* 
 This plugin made by suhail al-eryani to help read pages for blind people , anyone can use it , big thanks to http://creative-solutions.net/ for making there services available for free .
-
  */
 
 
@@ -14,6 +13,8 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
 	var isStarted = false;
 	var timeOut ;
 	var audio = new Audio();
+	var audioL = new Audio();
+	var content;
 
     (function($) {
 		
@@ -21,9 +22,9 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
 		$(document).ready(function () {
 			
 			
-			$('option').each(function(){
+			/* $('option').each(function(){
 				$(this).addClass('hover-option');
-			});
+			}); */
 			
 			
 			$('li.stop').on('click',function(e){
@@ -40,7 +41,7 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
 			});
 
 			$(' button , p ,i , a, span,li a, input, strong, p a, h1,h2,h3,h4,h5,h6').hover(function(){
-				
+				stopVar = false;
 				if( $(this)[0].tagName == 'INPUT'){
 					var text = $(this).val().trim();
 				}else{
@@ -55,24 +56,28 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
 				//console.log( text );
 				
 				if( Disable  ){
+
 				  if( isStarted == false ){
+					  stopVar = false;
 					  if( text != void 0 ){
 						  text = text.replace('&','and');
-						  reader( text );
+						  content = text.split(' ');
+						  content = ToMultipleWords(content, 0);
+						  timeOut = setTimeout( function(){  reader( content ) ; } , 200 );
 					  } 
 				  }else{
 					stopVar = true;
-					if( text != void 0 ) reader( text );
+					if( text != void 0 ){
+						content = text.split(' ');
+						content = ToMultipleWords(content, 0);
+						timeOut = setTimeout( function(){  reader( content ) ; } , 200 );
+					}
 				  }
 				}
 				
 				
 				}, function(){ // mouse out 
-					stopVar = true;
-					//audio.stop();
-					audio.pause();
-					audio.currentTime = 0;
-					
+					stopper();
 			});
 			
 
@@ -85,61 +90,73 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
 
         function reader( content ){
           isStarted = true;
-          content = content.split(' ');
-          content = ToMultipleWords(content, 0);
+
 		  console.log(content);
           player(content,0,1)
         }
 
         function player(content,i ,duration){
-			console.log(content[i]);
-          timeOut = window.setTimeout(function(){p(content,i)} , duration*600 );
+			
+           setTimeout( function(){ p( content , i ); }, duration) ;
         }
 
         function p(content,i){
 		  
-			if( content[i] != void 0 && content[i] != '' && content[i] != ' ' ){
-				
-				audio.src = 'http://creative-solutions.net/plugins/system/gspeech/includes/streamer.php?q='+content[i].trim()+'&l=en&tr_tool=g&token=186228.319834';
-			  var v = audio.addEventListener("loadeddata", function() {
+			if( content[i] != void 0 && content[i] != '' && content[i] != ' '  ){
+				console.log(content[i]);
+				if( content.length > 1 ){
+					audioL = new Audio();
+					audioL.src = 'http://creative-solutions.net/plugins/system/gspeech/includes/streamer.php?q='+content[i].trim()+'&l=en&tr_tool=g&token=186228.319834';
+					var v = audioL.addEventListener("loadeddata", function() {
+						audioL.play();
+						if(i < content.length && stopVar == false ){
+							setTimeout( function(){  player( content,i+1 , this.duration ); } , this.duration*600 ) ; 
+							//player(content,i+1,this.duration)
+						}
+						else {
+							clearTimeout( timeOut );
+							audioL.addEventListener('loadeddata',function(){
+								audioL.pause();
+								audioL.currentTime = 0;
+							});
+							//stopVar = true;
+							isStarted = false;
+							
+						}
+					});
+				}else{
+					audio.src = 'http://creative-solutions.net/plugins/system/gspeech/includes/streamer.php?q='+content[i].trim()+'&l=en&tr_tool=g&token=186228.319834';
+					var v = audio.addEventListener("loadeddata", function() {
 
-			   audio.play();
-			   if(i < content.length-1 && stopVar == false ){
-				window.setTimeout(function(){player(content,i+1,this.duration)} , this.duration*700 ); 
-				//player(content,i+1,this.duration)
-			   }
-			   else {
-				   audio.stop;
-				   stopVar = false;
-				   isStarted = false; 
+						audio.play();
+						if(i < content.length && stopVar == false ){
+							timeOut = setTimeout(  function(){  player(content,i+1,this.duration); }  , this.duration*600 ); 
+							//player(content,i+1,this.duration)
+						}
+						else {
+							stopper();
+						}
+					});	
 				}
-			  });
-			  audio.addEventListener('error', function failed(e) {
-				 switch (e.target.error.code) {
-				   case e.target.error.MEDIA_ERR_ABORTED:
-					  player(content,i+1,this.duration)
-					 break;
-				   case e.target.error.MEDIA_ERR_NETWORK:
-					  player(content,i+1,this.duration)
-					 break;
-				   case e.target.error.MEDIA_ERR_DECODE:
-					  player(content,i+1,this.duration)
-					 break;
-				   case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-					  player(content,i+1,this.duration)
-					 break;
-				   default:
-					  player(content,i+1,this.duration)
-					 break;
-				 }
-			   }, true);
+
+
 			}
 
         }
 
       function stopper(){
-        stopVar = true;
-        return 0
+		clearTimeout( timeOut );
+		//audio.addEventListener('loadeddata',function(){
+			audio.pause();
+			audio.currentTime = 0;
+		//});
+		//audioL.addEventListener('loadeddata',function(){
+			audioL.pause();
+			audioL.currentTime = 0;
+		//});
+		stopVar = true;
+		isStarted = false;
+		audio.src = '';
       }
       function disable(){
         Disable = false;
@@ -198,9 +215,3 @@ This plugin made by suhail al-eryani to help read pages for blind people , anyon
           }
           return "";
       }
-
-
-
-
-	  
-	
