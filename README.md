@@ -13,4 +13,4 @@ you can edit the code to specify what tags you want to turn on the text to speac
 
 #Big thanks 
 
-creative-solutions to their services available. please visite their site http://creative-solutions.net/
+creative-solutions for making their services available. please visite their site http://creative-solutions.net/ for more awesome plugin for wordpress and joomla
