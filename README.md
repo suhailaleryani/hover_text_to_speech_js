@@ -1,4 +1,4 @@
-# Test to speech plugin by hover on text
+# Text to speech plugin by hover on text
 
 This plugin created to help people to navigate the sites and hear it contents by hovering on the text 
 
